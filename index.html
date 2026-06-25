@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pbac.ai | Policy-Based Access Control for Agentic Authorization</title>
+    <meta
+      name="description"
+      content="Learn how policy-based access control helps govern AI agents with contextual, auditable authorization decisions."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #08111f;
+        --panel: rgba(11, 25, 46, 0.82);
+        --panel-border: rgba(119, 191, 255, 0.18);
+        --text: #eff6ff;
+        --muted: #b5c9e6;
+        --accent: #7dd3fc;
+        --accent-strong: #38bdf8;
+        --accent-soft: rgba(56, 189, 248, 0.12);
+        --success: #86efac;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(56, 189, 248, 0.16), transparent 32%),
+          linear-gradient(180deg, #0b1527 0%, var(--bg) 100%);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(14px);
+        background: rgba(8, 17, 31, 0.76);
+        border-bottom: 1px solid rgba(125, 211, 252, 0.12);
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 0;
+      }
+
+      .brand {
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      main {
+        padding: 3rem 0 4rem;
+      }
+
+      .hero,
+      .grid,
+      .policy-flow,
+      .faq,
+      .cta {
+        margin-bottom: 2rem;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem;
+        align-items: center;
+        padding: 4rem 0 2rem;
+      }
+
+      .eyebrow,
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.8rem;
+        border: 1px solid var(--panel-border);
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.9rem;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.15;
+        margin: 0 0 1rem;
+      }
+
+      h1 {
+        font-size: clamp(2.7rem, 6vw, 4.6rem);
+      }
+
+      h2 {
+        font-size: clamp(1.9rem, 3vw, 2.7rem);
+      }
+
+      p {
+        margin: 0 0 1rem;
+        color: var(--muted);
+      }
+
+      .hero-copy p {
+        font-size: 1.1rem;
+        max-width: 60ch;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        margin-top: 1.5rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.85rem 1.15rem;
+        border-radius: 0.9rem;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .button.primary {
+        background: linear-gradient(135deg, var(--accent-strong), #22d3ee);
+        color: #07111f;
+      }
+
+      .button.secondary {
+        border: 1px solid var(--panel-border);
+        background: rgba(9, 20, 36, 0.6);
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 1.4rem;
+        padding: 1.4rem;
+        box-shadow: 0 18px 60px rgba(3, 8, 17, 0.28);
+      }
+
+      .hero-card ul,
+      .checklist,
+      .faq ul {
+        padding-left: 1.1rem;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stat {
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+
+      .stat strong {
+        display: block;
+        margin-bottom: 0.45rem;
+        color: var(--text);
+        font-size: 1.45rem;
+      }
+
+      .policy-flow .grid {
+        align-items: stretch;
+      }
+
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        font-size: 0.95rem;
+        color: #d8f2ff;
+      }
+
+      .checklist li + li,
+      .faq li + li {
+        margin-top: 0.55rem;
+      }
+
+      .checklist li::marker {
+        color: var(--success);
+      }
+
+      footer {
+        padding: 2rem 0 3rem;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .grid,
+        .grid.two {
+          grid-template-columns: 1fr;
+        }
+
+        nav {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="shell">
+        <nav aria-label="Primary">
+          <a class="brand" href="#top">pbac.ai</a>
+          <div class="nav-links">
+            <a href="#pbac">What is PBAC?</a>
+            <a href="#agents">Agentic authorization</a>
+            <a href="#flow">Decision flow</a>
+            <a href="#policy">Example policy</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="shell hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Authorization for autonomous systems</span>
+          <h1>Policy-based access control for the age of AI agents.</h1>
+          <p>
+            Agentic systems make dynamic decisions, call tools, and move across data boundaries in
+            real time. Policy-based access control (PBAC) keeps those actions safe by evaluating
+            the full context of every request instead of relying on static roles alone.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#pbac">Explore PBAC</a>
+            <a class="button secondary" href="#policy">See a sample policy</a>
+          </div>
+        </div>
+
+        <aside class="panel hero-card" aria-label="Key outcomes">
+          <span class="tag">Why teams adopt PBAC</span>
+          <ul>
+            <li>Authorize agents using user intent, tool scope, risk, and runtime context.</li>
+            <li>Apply one decision model to humans, services, and AI-driven workflows.</li>
+            <li>Centralize policies for auditability, consistency, and faster iteration.</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="shell grid" id="pbac">
+        <article class="panel stat">
+          <strong>Context-aware decisions</strong>
+          PBAC evaluates attributes such as actor, action, resource sensitivity, environment, and
+          declared purpose before allowing an operation.
+        </article>
+        <article class="panel stat">
+          <strong>Externalized rules</strong>
+          Policies live outside application code, so teams can update authorization logic without
+          rewriting every workflow or tool integration.
+        </article>
+        <article class="panel stat">
+          <strong>Consistent enforcement</strong>
+          The same policy engine can govern web apps, APIs, background jobs, and AI agents across
+          your stack.
+        </article>
+      </section>
+
+      <section class="shell grid two" id="agents">
+        <article class="panel">
+          <h2>Why static authorization breaks for agents</h2>
+          <p>
+            AI agents are not limited to one predictable screen or endpoint. They can chain actions,
+            retrieve private data, execute tools, and adapt based on prompts or intermediate results.
+          </p>
+          <ul class="checklist">
+            <li>Roles rarely capture the intent behind an agent's current task.</li>
+            <li>One agent session may touch resources with very different sensitivity levels.</li>
+            <li>Approvals often need to reflect time, location, user delegation, or risk signals.</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h2>How PBAC solves agentic authorization</h2>
+          <p>
+            PBAC lets you express rich rules such as <em>an agent may summarize a document but may
+            not export it outside the tenant</em> or <em>tool execution requires elevated approval
+            when the request exceeds the user's delegated scope</em>.
+          </p>
+          <ul class="checklist">
+            <li>Evaluate runtime context for every agent decision.</li>
+            <li>Separate user permissions from agent execution safeguards.</li>
+            <li>Create explainable allow/deny decisions with audit trails.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="shell policy-flow" id="flow">
+        <div class="panel">
+          <h2>Decision flow for agentic authorization</h2>
+          <div class="grid">
+            <article class="panel">
+              <strong>1. Collect context</strong>
+              <p>
+                Capture who initiated the request, which agent is acting, which tool is being used,
+                what resource is targeted, and the current environmental signals.
+              </p>
+            </article>
+            <article class="panel">
+              <strong>2. Evaluate policy</strong>
+              <p>
+                Ask a policy engine whether the requested action is permitted under the current
+                context, obligations, and risk thresholds.
+              </p>
+            </article>
+            <article class="panel">
+              <strong>3. Enforce and audit</strong>
+              <p>
+                Allow, deny, redact, or require additional approval while recording the decision for
+                observability and compliance.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="shell grid two" id="policy">
+        <article class="panel">
+          <h2>Sample PBAC policy</h2>
+          <pre><code>allow if
+  actor.type in ["user", "agent"]
+  and actor.tenant == resource.tenant
+  and action in ["read", "summarize"]
+  and purpose == "support_case_resolution"
+  and resource.classification != "restricted"
+  and agent.tool in ["knowledge-search", "ticket-summary"]
+  and risk.score &lt; 40
+
+require_approval if
+  actor.type == "agent"
+  and action == "export"
+  and resource.classification in ["confidential", "restricted"]</code></pre>
+        </article>
+        <article class="panel faq">
+          <h2>What good PBAC looks like</h2>
+          <ul>
+            <li>Policies are expressive enough to model intent, delegation, and tool constraints.</li>
+            <li>Applications ask for decisions instead of embedding business rules everywhere.</li>
+            <li>Teams can explain exactly why an agent action was allowed or denied.</li>
+            <li>Enforcement scales as new agents and tools are added.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="shell cta">
+        <div class="panel">
+          <h2>PBAC gives agentic systems the guardrails they need.</h2>
+          <p>
+            If your applications are evolving from static interfaces to autonomous workflows,
+            authorization must evolve too. PBAC provides the flexible, contextual, and auditable
+            control plane needed to keep AI agents aligned with user permissions and organizational
+            policy.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell">Single-page site ready for static deployment on Cloudflare Pages.</div>
+    </footer>
+  </body>
+</html>
